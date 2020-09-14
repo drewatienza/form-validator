@@ -20,38 +20,58 @@ const showSuccess = (input) => {
 };
 
 // Check email is valid
-const isValid = (email) => {
+const checkEmail = (input) => {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
+  re.test(input.value.trim())
+    ? showSuccess(input)
+    : showError(input, "Email is not valid");
+};
+
+// Check required fields
+const checkRequired = (inputArr) => {
+  inputArr.forEach((input) => {
+    input.value.trim() === ""
+      ? showError(input, `${getFieldName(input)} is required`)
+      : showSuccess(input);
+  });
+};
+
+// Check input length
+const checkLength = (input, min, max) => {
+  if (input.value.length < min) {
+    showError(
+      input,
+      `${getFieldName(input)} must be at least ${min} characters`
+    );
+  } else if (input.value.length > max) {
+    showError(
+      input,
+      `${getFieldName(input)} must be less that ${max} characters`
+    );
+  } else {
+    showSuccess(input);
+  }
+};
+
+// Check password match
+const checkPasswordMatch = (input1, input2) => {
+  input1.value !== input2.value
+    ? showError(input2, "Passwords do not match")
+    : showSuccess(input2);
+};
+
+// Get Field Name
+const getFieldName = (input) => {
+  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
 };
 
 // Event Listeners
 form.addEventListener("submit", function (e) {
   e.preventDefault();
 
-  if (username.value === "") {
-    showError(username, "Username is required");
-  } else {
-    showSuccess(username);
-  }
-
-  if (email.value === "") {
-    showError(email, "Email is required");
-  } else if (!isValid(email.value)) {
-    showError(email, "Email is not valid");
-  } else {
-    showSuccess(username);
-  }
-
-  if (password.value === "") {
-    showError(password, "Password is required");
-  } else {
-    showSuccess(username);
-  }
-
-  if (password2.value === "") {
-    showError(password2, "Confirm password is required");
-  } else {
-    showSuccess(password2);
-  }
+  checkRequired([username, email, password, password2]);
+  checkLength(username, 3, 15);
+  checkLength(password, 6, 25);
+  checkEmail(email);
+  checkPasswordMatch(password, password2);
 });
